@@ -1,0 +1,339 @@
+---
+title: "Project 2"
+author: "SDS348"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
+
+```{r global_options, include=FALSE}
+#DO NOT EDIT THIS CHUNK OR ANYTHING ABOVE IT!
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F, tidy=T, tidy.opts=list(width.cutoff=50), R.options=list(max.print=100,dplyr.print_max=100))
+```
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+## 0. (Introduction)
+```{R}
+library(tidyverse)
+library(dplyr)
+library(vegan)
+library(sandwich)
+library(lmtest)
+library(plm)
+library(Momocs)
+library(plotROC)
+library(glmnet)
+set.seed(328)
+Data <- read.csv(url("https://vincentarelbundock.github.io/Rdatasets/csv/AER/EquationCitations.csv"))
+Data <- Data %>% select(-X, -authors, -volume)
+```
+
+*This data set contains publication information from evolutionary biology papers published in 1998 in the top 3 journals. It contains information about how many equations each paper uses, the journal it was published in, and the amount of citations the paper received. There are 649 observations in this data set. Using MANOVA, ANOVA, PERMANOVA, linear regression, and logistic regression we will find whether there is a relationship between the various variables.*
+
+
+## 1. (MANOVA Testing)
+```{R}
+man1<-manova(cbind(pages, equations)~journal, data=Data)
+summary(man1)
+```
+*A one-way MANOVA was conducted to determine the effect of the Journal Publication (AmNat, Evolution, ProcB) on two dependent variables (paper length and equations used).*
+
+*We will perform a total of 9 tests which leads to a 36.98% chance of a Type I error (if left unadjusted). We then adjust our significance level to .05/9 = .0056.*
+
+*Significant differences were found among the three journals for at least one of the dependent variables, Pillai trace = .38, pseudo F(4,1292) = 75.45, p<0001.*
+
+```{R}
+summary.aov(man1)
+```
+
+*Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for Paper length and equations used were also significant, F(2,646)=171.96, p<.0001, and F(2,646)=25.57, p<.0001, respectively. *
+
+```{R}
+Data %>% group_by(journal)%>%summarize(mean(pages),mean(equations))
+pairwise.t.test(Data$pages, Data$journal, p.adj="none")
+pairwise.t.test(Data$equations, Data$journal, p.adj="none")
+```
+
+*Post hoc analysis was performed conducting pairwise comparisons to determine which Journals differed in page length and equations used. All three journals were found to differ significantly from each other in terms of paper length, but the Evolution journal did not differ significantly in terms of equations used. All t-tests were done after adjusting for multiple comparisons (bonferroni).*
+
+*Some of the assumptions these tests fail is not having independent observations and having too many 0s in the data.*
+
+
+## 2. (Randomization)
+```{R}
+dists <- Data%>%select(pages, equations)%>%dist()
+adonis(dists~journal,data=Data)
+```
+*In order to bypass the assumptions required by the MANOVA test, we will run a PERMANOVA test.*
+
+*Null Hypothesis: No journals differ from each other in regards to the mean pages of each paper and the mean amount of equations it uses.*
+
+*Alternate Hypothesis: At least one journal differs from the others in regards to the mean pages of each paper and the mean amount of equations it uses.*
+
+*Since the p-value is .001 we are able to reject the null hypothesis.*
+
+## 3. (Linear Regression)
+```{R}
+Data$equations_c <- Data$equations-mean(Data$equations)
+Data$cites_c <- Data$cites-mean(Data$cites)
+fit1 <- lm(pages ~ equations_c * cites_c, data=Data)
+summary(fit1)
+```
+
+*The coefficient estimates are the values that minimize the sum of squared errors for the samples. When controlling for Citations, an increase of one equation leads to a .11 increase in paper length. When controlling for equations, 1 extra citation leads to a .012 increase in paper length. The slope of equations on citations is .00063 greater.*
+
+### Regression Model
+```{R thecode, echo=FALSE,}
+mycols<-c("#619CFF","#F8766D","#00BA38")
+names(mycols)<-c("-1 sd","mean","+1 sd")
+mycols=as.factor(mycols)
+
+new1<-Data  #Interaction Plot
+new1$equations_c<-mean(Data$equations_c)
+new1$mean<-predict(fit1,new1)
+new1$equations_c<-mean(Data$equations_c)+sd(Data$equations_c)
+new1$plus.sd<-predict(fit1,new1)
+new1$equations_c<-mean(Data$equations_c)-sd(Data$equations_c)
+new1$minus.sd<-predict(fit1,new1)
+newint<-new1%>%select(pages,cites_c,mean,plus.sd,minus.sd)%>%gather(equations,value,-pages,-cites_c)
+
+ggplot(Data,aes(cites_c,pages),group=mycols)+geom_point()+geom_line(data=new1,aes(y=mean,color="mean"))+geom_line(data=new1,aes(y=plus.sd,color="+1 sd"))+geom_line(data=new1,aes(y=minus.sd,color="-1 sd"))+scale_color_manual(values=mycols)+labs(color="Equations_c (cont)")+theme(legend.position=c(.9,.2))
+
+```
+
+```{R thecode, fig.show='hide'}
+```
+
+```{R}
+summary(fit1)$r.sq
+```
+
+*10.18% of variation in the outcome is explained by our model.*
+
+### Assumptions
+
+```{R}
+resids<-fit1$residuals
+fitvals<-fit1$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color='red')
+
+```
+*The graph with the fitted values and residuals does not flare out so we pass the assumption of having linear data*
+```{R}
+ks.test(resids, "pnorm", mean=0, sd(resids)) 
+```
+
+*The Kolmogorov-Smirnov test gives us a p-value of 1.29e-10 which is less than .05 so we reject the null hypohesis. We fail the assumption of having normal data.*
+```{R}
+bptest(fit1)
+```
+*The Breusch-Pagan test gives us a p-value of .0077 which is less than .05 so we reject the null hypothesis. We fail the assumption of having equal variances.*
+
+### Robust Standard Errors
+```{R}
+coeftest(fit1, vcov = vcovHC(fit1))[,1:2]
+```
+*Recomputing regression results with robust standard errors leads to an increase in all standard errors for all variables. Since they have increased, we will have a larger p-value which gives us a lower chance of rejecting the null hypothesis. This is the penalty we take for violating assumptions*
+
+
+## 4. (Bootstrapping)
+```{R}
+boot_dat<- sample_frac(Data, replace=T)
+samp_distn<-replicate(5000, {
+  boot_dat <- sample_frac(Data, replace=T)
+  fit2 <- lm(pages~equations_c*cites_c, data=boot_dat)
+  coef(fit2)
+}) 
+
+samp_distn %>% t %>% as.data.frame %>% summarize_all(sd)
+```
+*Rerunning the same regression model but this time using computed bootstrapped standard errors.*
+
+### All Standard Errors
+```{R}
+Variable <- c("equations_c", "cites_c", "equations_c:cites_c")
+Original_SEs <- c(.0158354, .0026731, .0002566)
+Robust_SEs <- c(.0184075665, .0030564507, .0002731974)
+Bootstrap_SEs <- c(.01840879, .003250335, .0003592391)
+
+df <- data.frame(Variable, Original_SEs, Robust_SEs, Bootstrap_SEs)
+
+print (df)
+```
+
+*The Bootstrap_SEs column shows that for all variables, the SE was largest after using a bootstrap process.*
+
+## 5. (Logistic Regression)
+```{R}
+Data$math <- ifelse(Data$equations > 0, 1, 0)
+Data$outcome <- ifelse(Data$equations > 0, "Equations", "No Equations")
+fit3<-glm(math ~ pages + cites, data=Data, family=binomial(link="logit"))
+```
+
+*Now we will use a logistic regression model to predict whether a paper has math equations or not. This will be done using two dependent variables (paper length and citations received).* 
+
+```{R}
+coeftest(fit3)
+exp(coef(fit3))
+```
+
+*The exponentiated coefficients shows the factor by which the odds change for every unit increase per variable. So the odds of having math equations in a paper will be .206 when there are no pages and no citations.*
+
+
+### Confusion Matrix
+```{R}
+Data$prob <- predict(fit3,type="response")
+Data$predicted <- ifelse(Data$prob>.5,"Equations","No Equations")
+Data$logit<-predict(fit3)
+table(truth=Data$outcome, prediction=Data$predicted)%>%addmargins #confusion matrix
+```
+
+*The confusion matrix shows us the scenarios in which our regression correctly or incorrectly predicted the results.*
+
+```{R}
+class_diag <- function(probs,truth){
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV
+  
+  if(is.character(truth)==TRUE) truth<-as.factor(truth)
+  if(is.numeric(truth)==FALSE & is.logical(truth)==FALSE) truth<-as.numeric(truth)-1
+  
+  tab<-table(factor(probs>.5,levels=c("FALSE","TRUE")),factor(truth, levels=c(0,1)))
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  
+  #CALCULATE EXACT AUC
+  ord<-order(probs, decreasing=TRUE)
+  probs <- probs[ord]; truth <- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup <-c(probs[-1]>=probs[-length(probs)], FALSE)
+  TPR <-c(0,TPR[!dup],1); FPR<-c(0,FPR[!dup],1)
+  n <- length(TPR)
+  auc <- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,auc)
+}
+
+class_diag(Data$prob, Data$math)
+```
+*class_diag function is used to calculate, accuracy, sensitivity, specificty, precision and AUC.*
+
+*The model correctly predicted 65.64% of cases.*
+
+*The model had a true positive rate of 27.13%.*
+
+*The model had a true negative rate of 89.30%.*
+
+*The model had a positive predictive value of 60.91%.*
+
+```{R}
+
+ggplot(Data,aes(logit, fill=outcome))+geom_density(alpha=.3)+
+  geom_vline(xintercept=0,lty=2)
+```
+*Here is a density plot showing the results of the model's predictions. The overlap between the two curves represents the cases that have been misclassified. 
+*
+
+```{R}
+ROCplot <- ggplot(Data) + geom_roc(aes(d=math,m=prob),n.cuts=0)
+ROCplot
+calc_auc(ROCplot)
+```
+*The ROC curve plot shows us the trade-off between sensitivity and specificity, and with an AUC of .66. Our model is doing a poor job of classifying cases. The model reaches a large fraction of false positive before a meaningful amount of true positives is reached.*
+
+## 6. (Cross Validation)
+```{R}
+fit4<-glm(math ~ pages + selfcites + othercites + theocites + nontheocites + journal, data=Data, family=binomial(link="logit"))
+```
+
+*This model will use the same process as the last, but will now include all predictive variables available to use. This includes: selfcites, othercites, theocites, nontheocites, journal type. While the data includes the amount of math eqautions each paper has, we will not be including them since that is what we are trying to predict.*
+
+```{R}
+Data$prob <- predict(fit4,type="response")
+Data$predicted <- ifelse(Data$prob>.5,"Equations","No Equations")
+Data$logit<-predict(fit4)
+class_diag(Data$prob, Data$math)
+```
+*The model correctly predicted 74.57% of cases.*
+
+*The model had a true positive rate of 48.58%.*
+
+*The model had a true negative rate of 90.55%.*
+
+*The model had a positive predictive value of 75.95%.*
+
+*The model also had a big improvement to an AUC of .79 which means it does a good job of predicted cases correctly. While better than the model that only used 2 predictive variables, there is still room to improve.*
+
+```{R}
+k=10
+randData<-Data[sample(nrow(Data)),] #randomly order rows
+folds<-cut(seq(1:nrow(Data)),breaks=k,labels=F) #create folds
+
+diags <- NULL
+
+for (i in 1:k){
+  train <- randData[folds!=i,]
+  test <- randData[folds==i,]
+  truth <- test$math ## Truth labels for fold i
+  
+  fit<-glm(math ~ pages + selfcites + othercites + theocites + nontheocites + journal,data=train,family="binomial")
+  
+  probs<-predict(fit,newdata = test,type="response")
+  
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)
+
+```
+
+*Here using K-fold Cross validation, reveals a slightly lower AUC of .78 when compared to the in sample data. This means our data was slightly overfitted, but not by much. The biggest change we had was a decrease in true positive rate of about 3%.*
+
+
+### Lasso Regression
+
+```{R}
+y<-as.matrix(Data$math)
+x<-model.matrix(fit4)[,-1]
+
+cv <- cv.glmnet(x,y, family="binomial")
+lasso <- glmnet(x,y, family="binomial", lambda=cv$lambda.1se)
+coef(lasso)
+```
+
+*Using Lasso, we see that othercites and selfcites are extraneous predictors.*
+
+```{R}
+k=10
+randData<-Data[sample(nrow(Data)),] #randomly order rows
+folds<-cut(seq(1:nrow(Data)),breaks=k,labels=F) #create folds
+
+diags <- NULL
+
+for (i in 1:k){
+  train <- randData[folds!=i,]
+  test <- randData[folds==i,]
+  truth <- test$math ## Truth labels for fold i
+  
+  fit<-glm(math ~ pages + theocites + nontheocites + journal, data=train,family="binomial")
+  
+  probs<-predict(fit,newdata = test,type="response")
+  
+  diags<-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)
+
+```
+
+*When we only use the variables lasso has selected, our AUC score only decreases by .006 when compared to our last cross validation when we used all our variables. This is a very minimal change while no longer having to take into account unnecessary data.*

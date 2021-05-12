@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Alex Ayala" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Prokect 1</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/post/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project/project1.utf8/">Prokect 1</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              <p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com">http://rmarkdown.rstudio.com</a>.</p>
+<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
+<h3 id="0-introduction">0. (Introduction)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">library</span>(plyr)
+base1 <span style="color:#f92672">&lt;-</span> baseball
+<span style="color:#a6e22e">library</span>(tidyverse)
+<span style="color:#a6e22e">library</span>(fivethirtyeight)
+<span style="color:#a6e22e">library</span>(cluster)
+<span style="color:#a6e22e">library</span>(plotly)
+base2 <span style="color:#f92672">&lt;-</span> mlb_as_play_talent
+<span style="color:#a6e22e">head</span>(base1)
+</code></pre></div><pre><code>##           id year stint team lg  g  ab  r  h X2b X3b hr rbi sb cs bb so ibb hbp
+## 4  ansonca01 1871     1  RC1    25 120 29 39  11   3  0  16  6  2  2  1  NA  NA
+## 44 forceda01 1871     1  WS3    32 162 45 45   9   4  0  29  8  0  4  0  NA  NA
+## 68 mathebo01 1871     1  FW1    19  89 15 24   3   1  0  10  2  1  2  0  NA  NA
+## 99 startjo01 1871     1  NY2    33 161 35 58   5   1  1  34  4  2  3  0  NA  NA
+##    sh sf gidp
+## 4  NA NA   NA
+## 44 NA NA   NA
+## 68 NA NA   NA
+## 99 NA NA   NA
+##  [ reached 'max' / getOption(&quot;max.print&quot;) -- omitted 2 rows ]
+</code></pre><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#a6e22e">head</span>(base2)
+</code></pre></div><pre><code>## # A tibble: 6 x 15
+##   bbref_id yearid gamenum gameid lgid  startingpos off600 def600 pitch200 asg_pa
+##   &lt;chr&gt;     &lt;int&gt;   &lt;int&gt; &lt;chr&gt;  &lt;chr&gt; &lt;chr&gt;        &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;  &lt;int&gt;
+## 1 goldspa~   2015       0 NLS20~ NL    3             36.8 -0.117      0        3
+## 2 mccutan~   2015       0 NLS20~ NL    8             33.7 -0.169      0        3
+## 3 harpebr~   2015       0 NLS20~ NL    9             30.9  1.38       0        3
+## 4 greinza~   2015       0 NLS20~ NL    1              0    0         15.6      0
+## 5 poseybu~   2015       0 NLS20~ NL    2             21.7  7.60       0        2
+## 6 frazito~   2015       0 NLS20~ NL    5             14.5  4.79       0        3
+## # ... with 5 more variables: asg_ip &lt;dbl&gt;, offper9innasg &lt;dbl&gt;,
+## #   defper9innasg &lt;dbl&gt;, pitper9innasg &lt;dbl&gt;, totper9innasg &lt;dbl&gt;
+</code></pre><p>*The base1 dataset contains all batting statistics for players from 1871 to 2007. Only players with at least 15 seasons of play are included. *</p>
+<p>*The base2 dataset includes players who made the All Star Games from in 1933 to 2007. This dataset contains performance in the Allstar game along with estimations of talent based off of season performances. *</p>
+<p><em>Both of these datasets originate from <a href="https://baseball-reference.com">https://baseball-reference.com</a> which is the main source of baseball statistics for major media organizations. Some of the associations I expect to find is better overall talent in the American League based on my own personal biases. I also expect to see higher numbers in most batting as the years progress since most major sports have experienced a talent creep.</em></p>
+<h3 id="1-tidying">1. (Tidying)</h3>
+<p><em>pivot_longer is used in correlation heatmap and gather is used in wrangling</em></p>
+<h3 id="2-joining">2. (Joining)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">base2 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rename</span>(base2, <span style="color:#e6db74">&#39;id&#39;</span> <span style="color:#f92672">=</span> bbref_id)
+base1 <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">rename</span>(base1, <span style="color:#e6db74">&#39;yearid&#39;</span> <span style="color:#f92672">=</span> year)
+fulldata <span style="color:#f92672">&lt;-</span> <span style="color:#a6e22e">left_join</span>(base1, base2, by <span style="color:#f92672">=</span> <span style="color:#a6e22e">c</span>(id<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;id&#34;</span>, yearid <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;yearid&#34;</span>))
+shortdat <span style="color:#f92672">&lt;-</span> fulldata <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(yearid <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">1954</span>, yearid <span style="color:#f92672">&lt;</span> <span style="color:#ae81ff">2000</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(hbp))  <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(startingpos <span style="color:#f92672">=</span> <span style="color:#a6e22e">na_if</span>(startingpos, <span style="color:#e6db74">&#34;NULL&#34;</span>)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(<span style="color:#f92672">-</span>gamenum, <span style="color:#f92672">-</span>asg_pa, <span style="color:#f92672">-</span>asg_ip, <span style="color:#f92672">-</span>offper9innasg, <span style="color:#f92672">-</span>defper9innasg, <span style="color:#f92672">-</span>pitper9innasg, <span style="color:#f92672">-</span>totper9innasg, <span style="color:#f92672">-</span>gameid, <span style="color:#f92672">-</span>stint) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">distinct</span>()
+</code></pre></div><p>*The base1 dataset began with 21699 observations and base2 began with 3930 observations. I used an left_join to ensure we are only analyzing players who have batting stats. We begin with 21799 observations. *</p>
+<p><em>We also filtered for players who played after 1954, since that is the year there was a change to how statistics were recorded. We then filtered by the NA&rsquo;s in hbp in order to remove incomplete cases without removing players who were not in the all star games. I also removed any entries after 2000. This is because the base1 dataset only contains players who have played at least 15 seasons. So the years after 2000 are incomplete and will retroactively have data added to it as players reach their 15 year mark.</em></p>
+<p><em>This left us with 12637 observations. I then removed stats that were specific to the All star game appearance, since we are more interested in the players performance over the season. Then we removed duplicate observations that were from years with multiple all star games. We finally arrive at 12569 observations.</em></p>
+<p><em>By not including statistics before 1955 it can be argued that you are not getting the complete picture of the MLB&rsquo;s history. But in 1955 there were many rule changes that greatly impacted the statistics for players. For examples Sacrifice hits (bunts), were not differentiated from normal swings. Before 1955 there were different standards which is why I chose to exclude them.</em></p>
+<h3 id="3-wrangling">3. (Wrangling)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">shortdat <span style="color:#f92672">&lt;-</span> shortdat  <span style="color:#f92672">%&gt;%</span>  <span style="color:#a6e22e">mutate</span>(talent <span style="color:#f92672">=</span> off600 <span style="color:#f92672">+</span> def600 <span style="color:#f92672">+</span> pitch200) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(startingpos <span style="color:#f92672">=</span> <span style="color:#a6e22e">recode</span>(startingpos, <span style="color:#e6db74">&#39;1&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Pitcher&#34;</span>, <span style="color:#e6db74">&#39;2&#39;</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Catcher&#34;</span>, <span style="color:#e6db74">&#39;3&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;1st Base&#34;</span>, <span style="color:#e6db74">&#39;4&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;2nd Base&#34;</span>, <span style="color:#e6db74">&#39;5&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;3rd Base&#34;</span>, <span style="color:#e6db74">&#39;6&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Shortstop&#34;</span>, <span style="color:#e6db74">&#39;7&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Left Field&#34;</span>, <span style="color:#e6db74">&#39;8&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Center Field&#34;</span>, <span style="color:#e6db74">&#39;9&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Right Field&#34;</span>, <span style="color:#e6db74">&#39;10&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Designated Hitter&#34;</span>)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(Allstar <span style="color:#f92672">=</span> <span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(talent)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(startingpos <span style="color:#f92672">=</span> <span style="color:#a6e22e">if_else</span>(<span style="color:#a6e22e">is.na</span>(startingpos), <span style="color:#a6e22e">if_else</span>(off600 <span style="color:#f92672">==</span> <span style="color:#ae81ff">0</span>, <span style="color:#e6db74">&#34;Backup Pitcher&#34;</span>, <span style="color:#e6db74">&#34;Backup Fielder&#34;</span>), startingpos)) 
+
+
+<span style="color:#75715e">#talent grouped by position</span>
+shortdat <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(talent)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">group_by</span>(startingpos) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(startingpos <span style="color:#f92672">=</span> <span style="color:#a6e22e">replace_na</span>(startingpos, <span style="color:#e6db74">&#34;Backup&#34;</span>)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(startingpos<span style="color:#f92672">=</span><span style="color:#a6e22e">factor</span>(startingpos, levels<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;Pitcher&#34;</span>, <span style="color:#e6db74">&#34;Backup Pitcher&#34;</span>, <span style="color:#e6db74">&#34;Catcher&#34;</span>, <span style="color:#e6db74">&#34;1st Base&#34;</span>, <span style="color:#e6db74">&#34;2nd Base&#34;</span>, <span style="color:#e6db74">&#34;3rd Base&#34;</span>, <span style="color:#e6db74">&#34;Shortstop&#34;</span>, <span style="color:#e6db74">&#34;Left Field&#34;</span>, <span style="color:#e6db74">&#34;Center Field&#34;</span>, <span style="color:#e6db74">&#34;Right Field&#34;</span>, <span style="color:#e6db74">&#34;Designated Hitter&#34;</span>, <span style="color:#e6db74">&#34;Backup Fielder&#34;</span>))) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">summarize</span>(avg_talent <span style="color:#f92672">=</span> <span style="color:#a6e22e">mean</span>(talent), sd_talent <span style="color:#f92672">=</span> <span style="color:#a6e22e">sd</span>(talent), var_talent <span style="color:#f92672">=</span> <span style="color:#a6e22e">var</span>(talent), min_talent <span style="color:#f92672">=</span> <span style="color:#a6e22e">min</span>(talent), max_talent <span style="color:#f92672">=</span> <span style="color:#a6e22e">max</span>(talent))
+</code></pre></div><pre><code>## # A tibble: 12 x 6
+##    startingpos       avg_talent sd_talent var_talent min_talent max_talent
+##    &lt;fct&gt;                  &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+##  1 Pitcher                 9.66      7.11       50.5     -2.27        31.1
+##  2 Backup Pitcher          7.82      6.17       38.0     -9.88        29.4
+##  3 Catcher                19.5      11.9       142.      -8.81        45.6
+##  4 1st Base               15.6      12.3       150.     -20.4         41.7
+##  5 2nd Base               17.7      14.8       219.     -12.0         57.6
+##  6 3rd Base               21.1      13.8       192.      -6.32        47.6
+##  7 Shortstop              16.2      13.9       193.     -11.9         48.6
+##  8 Left Field             22.9      15.6       242.      -8.82        56.2
+##  9 Center Field           31.0      14.9       222.       0.289       70.5
+## 10 Right Field            20.3      13.3       176.     -18.5         48.8
+## 11 Designated Hitter      14.8      12.5       156.      -2.72        37.5
+## 12 Backup Fielder         12.9      12.9       166.     -24.7         54.1
+</code></pre><p><em>To find the summary statistics, I grouped the data by the player&rsquo;s position. The players who did not have a position listed, were categorized as either backup picthers or backup hitters. The talent statistic is an estimation of both offensive and defensive talent, in runs above league average. The Center Field talent levels is skewed higher due to the dominance of center fielder Mickey Mantle compared to his contemporaries.</em></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#75715e">#offensive talent by League</span>
+shortdat <span style="color:#f92672">%&gt;%</span>  <span style="color:#a6e22e">filter</span>(<span style="color:#f92672">!</span><span style="color:#a6e22e">is.na</span>(talent)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">group_by</span>(lgid) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">summarize</span>(avg_off600 <span style="color:#f92672">=</span> <span style="color:#a6e22e">mean</span>(off600), sd_off600 <span style="color:#f92672">=</span> <span style="color:#a6e22e">sd</span>(off600), var_off600 <span style="color:#f92672">=</span> <span style="color:#a6e22e">var</span>(off600), min_off600 <span style="color:#f92672">=</span> <span style="color:#a6e22e">min</span>(off600), max_off600 <span style="color:#f92672">=</span> <span style="color:#a6e22e">max</span>(off600))
+</code></pre></div><pre><code>## # A tibble: 2 x 6
+##   lgid  avg_off600 sd_off600 var_off600 min_off600 max_off600
+##   &lt;chr&gt;      &lt;dbl&gt;     &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;
+## 1 AL          11.4      13.9       194.      -25.7       68.7
+## 2 NL          12.4      14.4       207.      -19.4       52.0
+</code></pre><p><em>These statistics shows that offensive talent is more plentiful in the American League</em></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#75715e">#RBI leaderboards </span>
+shortdat <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">group_by</span>(rbi, id) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">count</span>(sort<span style="color:#f92672">=</span>T) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">ungroup</span>() <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">arrange</span>(<span style="color:#a6e22e">desc</span>(rbi)) 
+</code></pre></div><pre><code>## # A tibble: 8,302 x 3
+##      rbi id            n
+##    &lt;int&gt; &lt;chr&gt;     &lt;int&gt;
+##  1   165 ramirma02     1
+##  2   158 sosasa01      1
+##  3   157 gonzaju03     1
+##  4   153 davisto02     1
+##  5   150 galaran01     1
+##  6   149 fostege01     1
+##  7   148 benchjo01     1
+##  8   148 palmera01     1
+##  9   147 mcgwima01     2
+## 10   147 griffke02     1
+## # ... with 8,292 more rows
+</code></pre><p><em>Here we have the RBI leaderboards and their respective player ID. Mark Mcgwire is in a 3 way tie for 9th with Ken Griffey and himself! He had two seperate seasons where he had 147 RBI&rsquo;s</em></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#75715e">#Summary statistics of multiple variables</span>
+shortdat <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">summarize_at</span>(<span style="color:#a6e22e">vars</span>(ab, r, h, so, sb, sh, bb, hbp), <span style="color:#a6e22e">funs</span>(mean, sd, var, median, max)) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">gather</span>(key <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;key&#34;</span>, value <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;value&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">separate</span>(key, <span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;variable&#34;</span>, <span style="color:#e6db74">&#34;stat&#34;</span>), sep <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;_&#34;</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">spread</span>(stat, value) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(variable <span style="color:#f92672">=</span> <span style="color:#a6e22e">recode</span>(variable, <span style="color:#e6db74">&#39;ab&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;At Bats&#34;</span>, <span style="color:#e6db74">&#39;bb&#39;</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Walks&#34;</span>, <span style="color:#e6db74">&#39;h&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Hits&#34;</span>, <span style="color:#e6db74">&#39;r&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Runs&#34;</span>, <span style="color:#e6db74">&#39;sb&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Stolen Bases&#34;</span>, <span style="color:#e6db74">&#39;sh&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Bunts&#34;</span>, <span style="color:#e6db74">&#39;so&#39;</span><span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Strike Outs&#34;</span>, <span style="color:#e6db74">&#39;hbp&#39;</span> <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;Hit by Pitch&#34;</span>))
+</code></pre></div><pre><code>##       variable max       mean median         sd          var
+## 1      At Bats 705 212.947410     99 219.791150 48308.149446
+## 2        Walks 162  21.897287      8  27.087395   733.726957
+## 3         Hits 240  57.163657     23  63.271638  4003.300156
+## 4 Hit by Pitch  35   1.348397      0   2.399265     5.756474
+## 5         Runs 146  28.798870     11  33.784308  1141.379499
+## 6 Stolen Bases 130   4.335667      0   9.581582    91.806717
+## 7        Bunts  40   2.162781      1   3.249626    10.560069
+## 8  Strike Outs 189  32.857586     22  34.356764  1180.387260
+</code></pre><p><em>Summary statistics for various batting statistics. Variability is so high for at bats, since most pitchers do not step up to bat anymore.</em></p>
+<h3 id="4-visualizing">4. (Visualizing)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#75715e">#Average HRs by League</span>
+shortdat <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(hr <span style="color:#f92672">&gt;</span> <span style="color:#ae81ff">0</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(yearid, hr)) <span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_bar</span>(stat<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;summary&#34;</span>, fun<span style="color:#f92672">=</span>mean, fill<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Light Blue&#34;</span>, color <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;black&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">scale_x_continuous</span>(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Year&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">scale_y_continuous</span>(name<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;Average Homeruns&#34;</span>, breaks<span style="color:#f92672">=</span><span style="color:#a6e22e">seq</span>(<span style="color:#ae81ff">0</span>, <span style="color:#ae81ff">15</span>, <span style="color:#ae81ff">2.5</span>)) <span style="color:#f92672">+</span> <span style="color:#a6e22e">facet_wrap</span>(<span style="color:#f92672">~</span>lg) <span style="color:#f92672">+</span> <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Average Homeruns Hit by Each League&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">theme_minimal</span>()
+</code></pre></div><p><!-- raw HTML omitted -->
+<em>In the few years before this data was collected, the average homeruns was increasing. Note: The dip in 1981 was due to the player&rsquo;s strike that led to a cancellation of 713 games.</em></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r"><span style="color:#75715e">#correlation heatmap</span>
+shortdat <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">filter</span>(Allstar <span style="color:#f92672">==</span> <span style="color:#66d9ef">TRUE</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select_if</span>(is.numeric) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(off600, pitch200, r, h, hr, rbi, so, sh, bb, hbp) <span style="color:#f92672">%&gt;%</span> cor <span style="color:#f92672">%&gt;%</span> as.data.frame <span style="color:#f92672">%&gt;%</span> rownames_to_column  <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">pivot_longer</span>(<span style="color:#ae81ff">-1</span>) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(rowname,name,fill<span style="color:#f92672">=</span>value))<span style="color:#f92672">+</span><span style="color:#a6e22e">geom_tile</span>() <span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_text</span>(<span style="color:#a6e22e">aes</span>(label<span style="color:#f92672">=</span><span style="color:#a6e22e">round</span>(value,<span style="color:#ae81ff">2</span>))) <span style="color:#f92672">+</span> <span style="color:#a6e22e">xlab</span>(<span style="color:#e6db74">&#34;&#34;</span>)<span style="color:#f92672">+</span><span style="color:#a6e22e">ylab</span>(<span style="color:#e6db74">&#34;&#34;</span>)<span style="color:#f92672">+</span><span style="color:#a6e22e">coord_fixed</span>() <span style="color:#f92672">+</span> <span style="color:#a6e22e">scale_fill_gradient2</span>(low <span style="color:#f92672">=</span> <span style="color:#e6db74">&#34;pink&#34;</span>, mid<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;white&#34;</span>,high<span style="color:#f92672">=</span><span style="color:#e6db74">&#34;blue&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">scale_y_discrete</span>(labels<span style="color:#f92672">=</span><span style="color:#a6e22e">c</span>(<span style="color:#e6db74">&#34;Walks(bb)&#34;</span>,<span style="color:#e6db74">&#34;Hits (h)&#34;</span>,<span style="color:#e6db74">&#34;Hit by Pitch (hbp)&#34;</span>, <span style="color:#e6db74">&#34;Home Runs (hr)&#34;</span>, <span style="color:#e6db74">&#34;Offensive Talent (off600)&#34;</span>,<span style="color:#e6db74">&#34;Pitching talent (pitch200)&#34;</span>,<span style="color:#e6db74">&#34;Runs (r)&#34;</span>,<span style="color:#e6db74">&#34;Runs Batted In (rbi)&#34;</span>, <span style="color:#e6db74">&#34;Bunts (sh)&#34;</span>, <span style="color:#e6db74">&#34;Strike Outs (so)&#34;</span>)) <span style="color:#f92672">+</span> <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Correlation Heatmap of Batting Stats for All Stars&#34;</span>)
+</code></pre></div><p><!-- raw HTML omitted --></p>
+<p><em>Here you can see just poorly pitching is correlated with batting statistics. The only exception is bunting.</em></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">shortdat <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">ggplot</span>(<span style="color:#a6e22e">aes</span>(yearid, h, color <span style="color:#f92672">=</span> Allstar)) <span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_point</span>(stat<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;summary&#39;</span>, fun<span style="color:#f92672">=</span>mean) <span style="color:#f92672">+</span> <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Baseball&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">xlab</span>(<span style="color:#e6db74">&#34;year&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">ylab</span>(<span style="color:#e6db74">&#34;Average hits&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">geom_smooth</span>(method<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;lm&#39;</span>,<span style="color:#a6e22e">aes</span>(color<span style="color:#f92672">=</span>Allstar)) <span style="color:#f92672">+</span> <span style="color:#a6e22e">ggtitle</span>(<span style="color:#e6db74">&#34;Average Hits of All Stars and non All Stars&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">theme_classic</span>()
+</code></pre></div><p><!-- raw HTML omitted -->
+<em>This table shows that on average, an all star caliber player hits the ball 3 more times than the rest of the league.</em></p>
+<h3 id="5-dimensionality-reduction">5. (Dimensionality Reduction)</h3>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-r" data-lang="r">clust_dat <span style="color:#f92672">&lt;-</span> shortdat  <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">select</span>(g, ab, r, h, X2b, X3b, hr, rbi, sb, cs, hbp, sh, sf, gidp, talent, Allstar) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">pam</span>(<span style="color:#ae81ff">4</span>)
+<span style="color:#a6e22e">set.seed</span>(<span style="color:#ae81ff">348</span>)
+final <span style="color:#f92672">&lt;-</span>  shortdat <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">mutate</span>(cluster<span style="color:#f92672">=</span>clust_dat<span style="color:#f92672">$</span>clustering) <span style="color:#f92672">%&gt;%</span> <span style="color:#a6e22e">sample_n</span>(<span style="color:#ae81ff">500</span>)
+<span style="color:#a6e22e">ggplot</span>(final, <span style="color:#a6e22e">aes</span>(x<span style="color:#f92672">=</span>g,y<span style="color:#f92672">=</span>rbi, color<span style="color:#f92672">=</span>cluster, shape <span style="color:#f92672">=</span> Allstar))<span style="color:#f92672">+</span><span style="color:#a6e22e">geom_point</span>() <span style="color:#f92672">+</span> <span style="color:#a6e22e">xlab</span>(<span style="color:#e6db74">&#34;Games&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">ylab</span>(<span style="color:#e6db74">&#34;Runs Batted In&#34;</span>) <span style="color:#f92672">+</span> <span style="color:#a6e22e">theme_light</span>()
+</code></pre></div><p><!-- raw HTML omitted -->
+<em>While it would be neat to have all the players clustered by their position, there is simply too much overlap to feasibly do that. The 4 clusters are likely pitchers (many games played with low batting), poor battesr, average batters, and the elite. You can see that most of the all stars have a high amount of runs batted in. If you are not a pitcher, it seems a high amount of RBI&rsquo;s are almost a requirement to become an all star.</em></p>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

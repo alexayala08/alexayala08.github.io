@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en-US">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Alex Ayala" />
+    
+    <link rel="shortcut icon" type="image/x-icon" href="/img/favicon.ico">
+    <title>Project 2</title>
+    <meta name="generator" content="Hugo 0.83.1" />
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="/css/main.css" />
+    <link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:200,400,200bold,400old" />
+    
+    <!--[if lt IE 9]>
+			<script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+			<script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+		<![endif]-->
+
+    
+  </head>
+
+  <body>
+    <div id="wrap">
+      
+      <nav class="navbar navbar-default">
+  <div class="container">
+    <div class="navbar-header">
+      <a class="navbar-brand" href="/"><i class="fa fa-home"></i></a>
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar">
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+    </div>
+    <div class="navbar-collapse collapse" id="navbar">
+      <ul class="nav navbar-nav navbar-right">
+      
+        
+        <li><a href="/post/">BLOG</a></li>
+        
+        <li><a href="/projects/">PROJECTS</a></li>
+        
+        <li><a href="/resume/">RESUME</a></li>
+        
+      
+      </ul>
+    </div>
+  </div>
+</nav>
+
+      <div class="container">
+        <div class="blog-post">
+          <h3>
+            <strong><a href="/project/project2/">Project 2</a></strong>
+          </h3>
+        </div>
+ 
+<div class="blog-title">
+          <h4>
+         January 1, 0001 
+            &nbsp;&nbsp;
+            
+          </h4>
+        </div>
+
+        <div class="panel panel-default">
+          <div class="panel-body">
+            <div class="blogpost">
+              
+<script src="/rmarkdown-libs/header-attrs/header-attrs.js"></script>
+
+
+<p>This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <a href="http://rmarkdown.rstudio.com" class="uri">http://rmarkdown.rstudio.com</a>.</p>
+<p>When you click the <strong>Knit</strong> button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:</p>
+<div id="introduction" class="section level2">
+<h2>0. (Introduction)</h2>
+<pre class="r"><code>library(tidyverse)
+library(dplyr)
+library(vegan)
+library(sandwich)
+library(lmtest)
+library(plm)
+library(Momocs)
+library(plotROC)
+library(glmnet)
+set.seed(328)
+Data &lt;- read.csv(url(&quot;https://vincentarelbundock.github.io/Rdatasets/csv/AER/EquationCitations.csv&quot;))
+Data &lt;- Data %&gt;% select(-X, -authors, -volume)</code></pre>
+<p><em>This data set contains publication information from evolutionary biology papers published in 1998 in the top 3 journals. It contains information about how many equations each paper uses, the journal it was published in, and the amount of citations the paper received. There are 649 observations in this data set. Using MANOVA, ANOVA, PERMANOVA, linear regression, and logistic regression we will find whether there is a relationship between the various variables.</em></p>
+</div>
+<div id="manova-testing" class="section level2">
+<h2>1. (MANOVA Testing)</h2>
+<pre class="r"><code>man1&lt;-manova(cbind(pages, equations)~journal, data=Data)
+summary(man1)</code></pre>
+<pre><code>##            Df  Pillai approx F num Df den Df    Pr(&gt;F)    
+## journal     2 0.37873   75.452      4   1292 &lt; 2.2e-16 ***
+## Residuals 646                                             
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><em>A one-way MANOVA was conducted to determine the effect of the Journal Publication (AmNat, Evolution, ProcB) on two dependent variables (paper length and equations used).</em></p>
+<p><em>We will perform a total of 9 tests which leads to a 36.98% chance of a Type I error (if left unadjusted). We then adjust our significance level to .05/9 = .0056.</em></p>
+<p><em>Significant differences were found among the three journals for at least one of the dependent variables, Pillai trace = .38, pseudo F(4,1292) = 75.45, p&lt;0001.</em></p>
+<pre class="r"><code>summary.aov(man1)</code></pre>
+<pre><code>##  Response pages :
+##              Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## journal       2 3311.0 1655.51  171.96 &lt; 2.2e-16 ***
+## Residuals   646 6219.2    9.63                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+##  Response equations :
+##              Df Sum Sq Mean Sq F value    Pr(&gt;F)    
+## journal       2   3884 1941.76   25.57 2.054e-11 ***
+## Residuals   646  49056   75.94                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><em>Univariate ANOVAs for each dependent variable were conducted as follow-up tests to the MANOVA, using the Bonferroni method for controlling Type I error rates for multiple comparisons. The univariate ANOVAs for Paper length and equations used were also significant, F(2,646)=171.96, p&lt;.0001, and F(2,646)=25.57, p&lt;.0001, respectively. </em></p>
+<pre class="r"><code>Data %&gt;% group_by(journal)%&gt;%summarize(mean(pages),mean(equations))</code></pre>
+<pre><code>## # A tibble: 3 x 3
+##   journal   `mean(pages)` `mean(equations)`
+##   &lt;chr&gt;             &lt;dbl&gt;             &lt;dbl&gt;
+## 1 AmNat             12.4               9.04
+## 2 Evolution          9.83              2.91
+## 3 ProcB              6.64              2.69</code></pre>
+<pre class="r"><code>pairwise.t.test(Data$pages, Data$journal, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  Data$pages and Data$journal 
+## 
+##           AmNat   Evolution
+## Evolution 5.6e-12 -        
+## ProcB     &lt; 2e-16 &lt; 2e-16  
+## 
+## P value adjustment method: none</code></pre>
+<pre class="r"><code>pairwise.t.test(Data$equations, Data$journal, p.adj=&quot;none&quot;)</code></pre>
+<pre><code>## 
+##  Pairwise comparisons using t tests with pooled SD 
+## 
+## data:  Data$equations and Data$journal 
+## 
+##           AmNat   Evolution
+## Evolution 2.8e-09 -        
+## ProcB     1.3e-11 0.78     
+## 
+## P value adjustment method: none</code></pre>
+<p><em>Post hoc analysis was performed conducting pairwise comparisons to determine which Journals differed in page length and equations used. All three journals were found to differ significantly from each other in terms of paper length, but the Evolution journal did not differ significantly in terms of equations used. All t-tests were done after adjusting for multiple comparisons (bonferroni).</em></p>
+<p><em>Some of the assumptions these tests fail is not having independent observations and having too many 0s in the data.</em></p>
+</div>
+<div id="randomization" class="section level2">
+<h2>2. (Randomization)</h2>
+<pre class="r"><code>dists &lt;- Data%&gt;%select(pages, equations)%&gt;%dist()
+adonis(dists~journal,data=Data)</code></pre>
+<pre><code>## 
+## Call:
+## adonis(formula = dists ~ journal, data = Data) 
+## 
+## Permutation: free
+## Number of permutations: 999
+## 
+## Terms added sequentially (first to last)
+## 
+##            Df SumsOfSqs MeanSqs F.Model      R2 Pr(&gt;F)    
+## journal     2      7195  3597.3  42.041 0.11517  0.001 ***
+## Residuals 646     55275    85.6         0.88483           
+## Total     648     62470                 1.00000           
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p><em>In order to bypass the assumptions required by the MANOVA test, we will run a PERMANOVA test.</em></p>
+<p><em>Null Hypothesis: No journals differ from each other in regards to the mean pages of each paper and the mean amount of equations it uses.</em></p>
+<p><em>Alternate Hypothesis: At least one journal differs from the others in regards to the mean pages of each paper and the mean amount of equations it uses.</em></p>
+<p><em>Since the p-value is .001 we are able to reject the null hypothesis.</em></p>
+</div>
+<div id="linear-regression" class="section level2">
+<h2>3. (Linear Regression)</h2>
+<pre class="r"><code>Data$equations_c &lt;- Data$equations-mean(Data$equations)
+Data$cites_c &lt;- Data$cites-mean(Data$cites)
+fit1 &lt;- lm(pages ~ equations_c * cites_c, data=Data)
+summary(fit1)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = pages ~ equations_c * cites_c, data = Data)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -6.1256 -2.5355 -0.9904  1.6724 15.3063 
+## 
+## Coefficients:
+##                      Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)         8.6288438  0.1430151  60.335  &lt; 2e-16 ***
+## equations_c         0.1101114  0.0158354   6.954 8.76e-12 ***
+## cites_c             0.0115629  0.0026731   4.326 1.76e-05 ***
+## equations_c:cites_c 0.0006294  0.0002566   2.453   0.0144 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 3.643 on 645 degrees of freedom
+## Multiple R-squared:  0.1018, Adjusted R-squared:  0.0976 
+## F-statistic: 24.36 on 3 and 645 DF,  p-value: 6.06e-15</code></pre>
+<p><em>The coefficient estimates are the values that minimize the sum of squared errors for the samples. When controlling for Citations, an increase of one equation leads to a .11 increase in paper length. When controlling for equations, 1 extra citation leads to a .012 increase in paper length. The slope of equations on citations is .00063 greater.</em></p>
+<div id="regression-model" class="section level3">
+<h3>Regression Model</h3>
+<p><img src="/project/project2_files/figure-html/thecode-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>mycols&lt;-c(&quot;#619CFF&quot;,&quot;#F8766D&quot;,&quot;#00BA38&quot;)
+names(mycols)&lt;-c(&quot;-1 sd&quot;,&quot;mean&quot;,&quot;+1 sd&quot;)
+mycols=as.factor(mycols)
+
+new1&lt;-Data  #Interaction Plot
+new1$equations_c&lt;-mean(Data$equations_c)
+new1$mean&lt;-predict(fit1,new1)
+new1$equations_c&lt;-mean(Data$equations_c)+sd(Data$equations_c)
+new1$plus.sd&lt;-predict(fit1,new1)
+new1$equations_c&lt;-mean(Data$equations_c)-sd(Data$equations_c)
+new1$minus.sd&lt;-predict(fit1,new1)
+newint&lt;-new1%&gt;%select(pages,cites_c,mean,plus.sd,minus.sd)%&gt;%gather(equations,value,-pages,-cites_c)
+
+ggplot(Data,aes(cites_c,pages),group=mycols)+geom_point()+geom_line(data=new1,aes(y=mean,color=&quot;mean&quot;))+geom_line(data=new1,aes(y=plus.sd,color=&quot;+1 sd&quot;))+geom_line(data=new1,aes(y=minus.sd,color=&quot;-1 sd&quot;))+scale_color_manual(values=mycols)+labs(color=&quot;Equations_c (cont)&quot;)+theme(legend.position=c(.9,.2))</code></pre>
+<pre class="r"><code>summary(fit1)$r.sq</code></pre>
+<pre><code>## [1] 0.1017822</code></pre>
+<p><em>10.18% of variation in the outcome is explained by our model.</em></p>
+</div>
+<div id="assumptions" class="section level3">
+<h3>Assumptions</h3>
+<pre class="r"><code>resids&lt;-fit1$residuals
+fitvals&lt;-fit1$fitted.values
+ggplot()+geom_point(aes(fitvals,resids))+geom_hline(yintercept=0, color=&#39;red&#39;)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-8-1.png" width="672" style="display: block; margin: auto;" />
+<em>The graph with the fitted values and residuals does not flare out so we pass the assumption of having linear data</em></p>
+<pre class="r"><code>ks.test(resids, &quot;pnorm&quot;, mean=0, sd(resids)) </code></pre>
+<pre><code>## 
+##  One-sample Kolmogorov-Smirnov test
+## 
+## data:  resids
+## D = 0.13445, p-value = 1.29e-10
+## alternative hypothesis: two-sided</code></pre>
+<p><em>The Kolmogorov-Smirnov test gives us a p-value of 1.29e-10 which is less than .05 so we reject the null hypohesis. We fail the assumption of having normal data.</em></p>
+<pre class="r"><code>bptest(fit1)</code></pre>
+<pre><code>## 
+##  studentized Breusch-Pagan test
+## 
+## data:  fit1
+## BP = 11.902, df = 3, p-value = 0.007725</code></pre>
+<p><em>The Breusch-Pagan test gives us a p-value of .0077 which is less than .05 so we reject the null hypothesis. We fail the assumption of having equal variances.</em></p>
+</div>
+<div id="robust-standard-errors" class="section level3">
+<h3>Robust Standard Errors</h3>
+<pre class="r"><code>coeftest(fit1, vcov = vcovHC(fit1))[,1:2]</code></pre>
+<pre><code>##                         Estimate   Std. Error
+## (Intercept)         8.6288438269 0.1434675757
+## equations_c         0.1101114090 0.0184075665
+## cites_c             0.0115628938 0.0030564507
+## equations_c:cites_c 0.0006293833 0.0002731974</code></pre>
+<p><em>Recomputing regression results with robust standard errors leads to an increase in all standard errors for all variables. Since they have increased, we will have a larger p-value which gives us a lower chance of rejecting the null hypothesis. This is the penalty we take for violating assumptions</em></p>
+</div>
+</div>
+<div id="bootstrapping" class="section level2">
+<h2>4. (Bootstrapping)</h2>
+<pre class="r"><code>boot_dat&lt;- sample_frac(Data, replace=T)
+samp_distn&lt;-replicate(5000, {
+  boot_dat &lt;- sample_frac(Data, replace=T)
+  fit2 &lt;- lm(pages~equations_c*cites_c, data=boot_dat)
+  coef(fit2)
+}) 
+
+samp_distn %&gt;% t %&gt;% as.data.frame %&gt;% summarize_all(sd)</code></pre>
+<pre><code>##   (Intercept) equations_c     cites_c equations_c:cites_c
+## 1   0.1411014  0.01840879 0.003250335        0.0003592391</code></pre>
+<p><em>Rerunning the same regression model but this time using computed bootstrapped standard errors.</em></p>
+<div id="all-standard-errors" class="section level3">
+<h3>All Standard Errors</h3>
+<pre class="r"><code>Variable &lt;- c(&quot;equations_c&quot;, &quot;cites_c&quot;, &quot;equations_c:cites_c&quot;)
+Original_SEs &lt;- c(.0158354, .0026731, .0002566)
+Robust_SEs &lt;- c(.0184075665, .0030564507, .0002731974)
+Bootstrap_SEs &lt;- c(.01840879, .003250335, .0003592391)
+
+df &lt;- data.frame(Variable, Original_SEs, Robust_SEs, Bootstrap_SEs)
+
+print (df)</code></pre>
+<pre><code>##              Variable Original_SEs   Robust_SEs Bootstrap_SEs
+## 1         equations_c    0.0158354 0.0184075665  0.0184087900
+## 2             cites_c    0.0026731 0.0030564507  0.0032503350
+## 3 equations_c:cites_c    0.0002566 0.0002731974  0.0003592391</code></pre>
+<p><em>The Bootstrap_SEs column shows that for all variables, the SE was largest after using a bootstrap process.</em></p>
+</div>
+</div>
+<div id="logistic-regression" class="section level2">
+<h2>5. (Logistic Regression)</h2>
+<pre class="r"><code>Data$math &lt;- ifelse(Data$equations &gt; 0, 1, 0)
+Data$outcome &lt;- ifelse(Data$equations &gt; 0, &quot;Equations&quot;, &quot;No Equations&quot;)
+fit3&lt;-glm(math ~ pages + cites, data=Data, family=binomial(link=&quot;logit&quot;))</code></pre>
+<p><em>Now we will use a logistic regression model to predict whether a paper has math equations or not. This will be done using two dependent variables (paper length and citations received).</em></p>
+<pre class="r"><code>coeftest(fit3)</code></pre>
+<pre><code>## 
+## z test of coefficients:
+## 
+##               Estimate Std. Error z value  Pr(&gt;|z|)    
+## (Intercept) -1.5786443  0.2200152 -7.1752 7.222e-13 ***
+## pages        0.1494724  0.0230893  6.4737 9.565e-11 ***
+## cites       -0.0041730  0.0018089 -2.3069   0.02106 *  
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<pre class="r"><code>exp(coef(fit3))</code></pre>
+<pre><code>## (Intercept)       pages       cites 
+##   0.2062545   1.1612214   0.9958357</code></pre>
+<p><em>The exponentiated coefficients shows the factor by which the odds change for every unit increase per variable. So the odds of having math equations in a paper will be .206 when there are no pages and no citations.</em></p>
+<div id="confusion-matrix" class="section level3">
+<h3>Confusion Matrix</h3>
+<pre class="r"><code>Data$prob &lt;- predict(fit3,type=&quot;response&quot;)
+Data$predicted &lt;- ifelse(Data$prob&gt;.5,&quot;Equations&quot;,&quot;No Equations&quot;)
+Data$logit&lt;-predict(fit3)
+table(truth=Data$outcome, prediction=Data$predicted)%&gt;%addmargins #confusion matrix</code></pre>
+<pre><code>##               prediction
+## truth          Equations No Equations Sum
+##   Equations           67          180 247
+##   No Equations        43          359 402
+##   Sum                110          539 649</code></pre>
+<p><em>The confusion matrix shows us the scenarios in which our regression correctly or incorrectly predicted the results.</em></p>
+<pre class="r"><code>class_diag &lt;- function(probs,truth){
+  #CONFUSION MATRIX: CALCULATE ACCURACY, TPR, TNR, PPV
+  
+  if(is.character(truth)==TRUE) truth&lt;-as.factor(truth)
+  if(is.numeric(truth)==FALSE &amp; is.logical(truth)==FALSE) truth&lt;-as.numeric(truth)-1
+  
+  tab&lt;-table(factor(probs&gt;.5,levels=c(&quot;FALSE&quot;,&quot;TRUE&quot;)),factor(truth, levels=c(0,1)))
+  acc=sum(diag(tab))/sum(tab)
+  sens=tab[2,2]/colSums(tab)[2]
+  spec=tab[1,1]/colSums(tab)[1]
+  ppv=tab[2,2]/rowSums(tab)[2]
+  
+  #CALCULATE EXACT AUC
+  ord&lt;-order(probs, decreasing=TRUE)
+  probs &lt;- probs[ord]; truth &lt;- truth[ord]
+  
+  TPR=cumsum(truth)/max(1,sum(truth)) 
+  FPR=cumsum(!truth)/max(1,sum(!truth))
+  
+  dup &lt;-c(probs[-1]&gt;=probs[-length(probs)], FALSE)
+  TPR &lt;-c(0,TPR[!dup],1); FPR&lt;-c(0,FPR[!dup],1)
+  n &lt;- length(TPR)
+  auc &lt;- sum( ((TPR[-1]+TPR[-n])/2) * (FPR[-1]-FPR[-n]) )
+
+  data.frame(acc,sens,spec,ppv,auc)
+}
+
+class_diag(Data$prob, Data$math)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.6563945 0.2712551 0.8930348 0.6090909 0.6600348</code></pre>
+<p><em>class_diag function is used to calculate, accuracy, sensitivity, specificty, precision and AUC.</em></p>
+<p><em>The model correctly predicted 65.64% of cases.</em></p>
+<p><em>The model had a true positive rate of 27.13%.</em></p>
+<p><em>The model had a true negative rate of 89.30%.</em></p>
+<p><em>The model had a positive predictive value of 60.91%.</em></p>
+<pre class="r"><code>ggplot(Data,aes(logit, fill=outcome))+geom_density(alpha=.3)+
+  geom_vline(xintercept=0,lty=2)</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-18-1.png" width="672" style="display: block; margin: auto;" />
+<em>Here is a density plot showing the results of the model’s predictions. The overlap between the two curves represents the cases that have been misclassified.
+</em></p>
+<pre class="r"><code>ROCplot &lt;- ggplot(Data) + geom_roc(aes(d=math,m=prob),n.cuts=0)
+ROCplot</code></pre>
+<p><img src="/project/project2_files/figure-html/unnamed-chunk-19-1.png" width="672" style="display: block; margin: auto;" /></p>
+<pre class="r"><code>calc_auc(ROCplot)</code></pre>
+<pre><code>##   PANEL group       AUC
+## 1     1    -1 0.6600348</code></pre>
+<p><em>The ROC curve plot shows us the trade-off between sensitivity and specificity, and with an AUC of .66. Our model is doing a poor job of classifying cases. The model reaches a large fraction of false positive before a meaningful amount of true positives is reached.</em></p>
+</div>
+</div>
+<div id="cross-validation" class="section level2">
+<h2>6. (Cross Validation)</h2>
+<pre class="r"><code>fit4&lt;-glm(math ~ pages + selfcites + othercites + theocites + nontheocites + journal, data=Data, family=binomial(link=&quot;logit&quot;))</code></pre>
+<p><em>This model will use the same process as the last, but will now include all predictive variables available to use. This includes: selfcites, othercites, theocites, nontheocites, journal type. While the data includes the amount of math eqautions each paper has, we will not be including them since that is what we are trying to predict.</em></p>
+<pre class="r"><code>Data$prob &lt;- predict(fit4,type=&quot;response&quot;)
+Data$predicted &lt;- ifelse(Data$prob&gt;.5,&quot;Equations&quot;,&quot;No Equations&quot;)
+Data$logit&lt;-predict(fit4)
+class_diag(Data$prob, Data$math)</code></pre>
+<pre><code>##         acc    sens      spec       ppv       auc
+## 1 0.7457627 0.48583 0.9054726 0.7594937 0.7946049</code></pre>
+<p><em>The model correctly predicted 74.57% of cases.</em></p>
+<p><em>The model had a true positive rate of 48.58%.</em></p>
+<p><em>The model had a true negative rate of 90.55%.</em></p>
+<p><em>The model had a positive predictive value of 75.95%.</em></p>
+<p><em>The model also had a big improvement to an AUC of .79 which means it does a good job of predicted cases correctly. While better than the model that only used 2 predictive variables, there is still room to improve.</em></p>
+<pre class="r"><code>k=10
+randData&lt;-Data[sample(nrow(Data)),] #randomly order rows
+folds&lt;-cut(seq(1:nrow(Data)),breaks=k,labels=F) #create folds
+
+diags &lt;- NULL
+
+for (i in 1:k){
+  train &lt;- randData[folds!=i,]
+  test &lt;- randData[folds==i,]
+  truth &lt;- test$math ## Truth labels for fold i
+  
+  fit&lt;-glm(math ~ pages + selfcites + othercites + theocites + nontheocites + journal,data=train,family=&quot;binomial&quot;)
+  
+  probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+  
+  diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv       auc
+## 1 0.7319231 0.4577699 0.9023465 0.7410142 0.7784445</code></pre>
+<p><em>Here using K-fold Cross validation, reveals a slightly lower AUC of .78 when compared to the in sample data. This means our data was slightly overfitted, but not by much. The biggest change we had was a decrease in true positive rate of about 3%.</em></p>
+<div id="lasso-regression" class="section level3">
+<h3>Lasso Regression</h3>
+<pre class="r"><code>y&lt;-as.matrix(Data$math)
+x&lt;-model.matrix(fit4)[,-1]
+
+cv &lt;- cv.glmnet(x,y, family=&quot;binomial&quot;)
+lasso &lt;- glmnet(x,y, family=&quot;binomial&quot;, lambda=cv$lambda.1se)
+coef(lasso)</code></pre>
+<pre><code>## 8 x 1 sparse Matrix of class &quot;dgCMatrix&quot;
+##                           s0
+## (Intercept)      -1.08104643
+## pages             0.08355865
+## selfcites         .         
+## othercites        .         
+## theocites         0.04309833
+## nontheocites     -0.01395400
+## journalEvolution  .         
+## journalProcB     -0.18044091</code></pre>
+<p><em>Using Lasso, we see that othercites and selfcites are extraneous predictors.</em></p>
+<pre class="r"><code>k=10
+randData&lt;-Data[sample(nrow(Data)),] #randomly order rows
+folds&lt;-cut(seq(1:nrow(Data)),breaks=k,labels=F) #create folds
+
+diags &lt;- NULL
+
+for (i in 1:k){
+  train &lt;- randData[folds!=i,]
+  test &lt;- randData[folds==i,]
+  truth &lt;- test$math ## Truth labels for fold i
+  
+  fit&lt;-glm(math ~ pages + theocites + nontheocites + journal, data=train,family=&quot;binomial&quot;)
+  
+  probs&lt;-predict(fit,newdata = test,type=&quot;response&quot;)
+  
+  diags&lt;-rbind(diags,class_diag(probs,truth))
+}
+
+summarize_all(diags,mean)</code></pre>
+<pre><code>##         acc      sens      spec       ppv      auc
+## 1 0.7258413 0.4357462 0.8980199 0.7050664 0.776451</code></pre>
+<p><em>When we only use the variables lasso has selected, our AUC score only decreases by .006 when compared to our last cross validation when we used all our variables. This is a very minimal change while no longer having to take into account unnecessary data.</em></p>
+</div>
+</div>
+
+            
+        <hr>         <div class="related-posts">
+                <h5>Related Posts</h5>
+                
+              </div> 
+            </div>
+          </div>
+
+   <hr>  <div class="disqus">
+  <div id="disqus_thread"></div>
+  <script type="text/javascript">
+
+    (function() {
+      
+      
+      if (window.location.hostname == "localhost")
+        return;
+
+      var disqus_shortname = '';
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+  </script>
+  <noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+  <a href="http://disqus.com/" class="dsq-brlink">comments powered by <span class="logo-disqus">Disqus</span></a>
+</div> 
+        </div>
+      </div>
+    </div>
+
+    
+    <footer>
+  <div id="footer">
+    <div class="container">
+      <p class="text-muted">&copy; All rights reserved. Powered by <a href="https://gohugo.io/">Hugo</a> and
+      <a href="http://www.github.com/nurlansu/hugo-sustain/">sustain</a> with ♥</p>
+    </div>
+  </div>
+</footer>
+<div class="footer"></div>
+
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+<script src="/js/docs.min.js"></script>
+<script src="/js/main.js"></script>
+
+<script src="/js/ie10-viewport-bug-workaround.js"></script>
+
+
+    
+  </body>
+</html>

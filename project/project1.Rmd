@@ -1,0 +1,128 @@
+---
+title: "Project 1"
+author: "SDS348"
+date: "`r format(Sys.Date(), '%B %d, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float:
+      collapsed: false
+---
+
+```{r global_options, include=FALSE}
+#DO NOT EDIT THIS CHUNK OR ANYTHING ABOVE IT!
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE, fig.align = "center", warning = F, message = F, tidy=T, tidy.opts=list(width.cutoff=50), R.options=list(max.print=100,dplyr.print_max=100))
+```
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+
+### 0. (Introduction)
+```{R}
+library(plyr)
+base1 <- baseball
+library(tidyverse)
+library(fivethirtyeight)
+library(cluster)
+library(plotly)
+base2 <- mlb_as_play_talent
+head(base1)
+head(base2)
+```
+*The base1 dataset contains all batting statistics for players from 1871 to 2007. Only players with at least 15 seasons of play are included. *
+
+*The base2 dataset includes players who made the All Star Games from in 1933 to 2007. This dataset contains performance in the Allstar game along with estimations of talent based off of season performances. *
+
+*Both of these datasets originate from https://baseball-reference.com which is the main source of baseball statistics for major media organizations. Some of the associations I expect to find is better overall talent in the American League based on my own personal biases. I also expect to see higher numbers in most batting as the years progress since most major sports have experienced a talent creep.*
+
+### 1. (Tidying)
+
+*pivot_longer is used in correlation heatmap and gather is used in wrangling*
+
+### 2. (Joining)
+
+```{R}
+base2 <- rename(base2, 'id' = bbref_id)
+base1 <- rename(base1, 'yearid' = year)
+fulldata <- left_join(base1, base2, by = c(id="id", yearid = "yearid"))
+shortdat <- fulldata %>% filter(yearid > 1954, yearid < 2000) %>% filter(!is.na(hbp))  %>% mutate(startingpos = na_if(startingpos, "NULL")) %>% select(-gamenum, -asg_pa, -asg_ip, -offper9innasg, -defper9innasg, -pitper9innasg, -totper9innasg, -gameid, -stint) %>% distinct()
+
+```
+*The base1 dataset began with 21699 observations and base2 began with 3930 observations. I used an left_join to ensure we are only analyzing players who have batting stats. We begin with 21799 observations. *
+
+*We also filtered for players who played after 1954, since that is the year there was a change to how statistics were recorded. We then filtered by the NA's in hbp in order to remove incomplete cases without removing players who were not in the all star games. I also removed any entries after 2000. This is because the base1 dataset only contains players who have played at least 15 seasons. So the years after 2000 are incomplete and will retroactively have data added to it as players reach their 15 year mark.*
+
+*This left us with 12637 observations. I then removed stats that were specific to the All star game appearance, since we are more interested in the players performance over the season. Then we removed duplicate observations that were from years with multiple all star games. We finally arrive at 12569 observations.*
+
+*By not including statistics before 1955 it can be argued that you are not getting the complete picture of the MLB's history. But in 1955 there were many rule changes that greatly impacted the statistics for players. For examples Sacrifice hits (bunts), were not differentiated from normal swings. Before 1955 there were different standards which is why I chose to exclude them.*
+
+
+### 3. (Wrangling)
+```{R}
+shortdat <- shortdat  %>%  mutate(talent = off600 + def600 + pitch200) %>% mutate(startingpos = recode(startingpos, '1'="Pitcher", '2' = "Catcher", '3'="1st Base", '4'="2nd Base", '5'="3rd Base", '6'="Shortstop", '7'="Left Field", '8'="Center Field", '9'="Right Field", '10'="Designated Hitter")) %>% mutate(Allstar = !is.na(talent)) %>% mutate(startingpos = if_else(is.na(startingpos), if_else(off600 == 0, "Backup Pitcher", "Backup Fielder"), startingpos)) 
+
+
+#talent grouped by position
+shortdat %>% filter(!is.na(talent)) %>% group_by(startingpos) %>% mutate(startingpos = replace_na(startingpos, "Backup")) %>% mutate(startingpos=factor(startingpos, levels=c("Pitcher", "Backup Pitcher", "Catcher", "1st Base", "2nd Base", "3rd Base", "Shortstop", "Left Field", "Center Field", "Right Field", "Designated Hitter", "Backup Fielder"))) %>% summarize(avg_talent = mean(talent), sd_talent = sd(talent), var_talent = var(talent), min_talent = min(talent), max_talent = max(talent))
+
+```
+
+*To find the summary statistics, I grouped the data by the player's position. The players who did not have a position listed, were categorized as either backup picthers or backup hitters. The talent statistic is an estimation of both offensive and defensive talent, in runs above league average. The Center Field talent levels is skewed higher due to the dominance of center fielder Mickey Mantle compared to his contemporaries.*
+
+```{R}
+#offensive talent by League
+shortdat %>%  filter(!is.na(talent)) %>% group_by(lgid) %>% summarize(avg_off600 = mean(off600), sd_off600 = sd(off600), var_off600 = var(off600), min_off600 = min(off600), max_off600 = max(off600))
+```
+*These statistics shows that offensive talent is more plentiful in the American League*
+```{R}
+
+#RBI leaderboards 
+shortdat %>% group_by(rbi, id) %>% count(sort=T) %>% ungroup() %>% arrange(desc(rbi)) 
+
+```
+
+*Here we have the RBI leaderboards and their respective player ID. Mark Mcgwire is in a 3 way tie for 9th with Ken Griffey and himself! He had two seperate seasons where he had 147 RBI's*
+
+```{R}
+#Summary statistics of multiple variables
+shortdat %>% summarize_at(vars(ab, r, h, so, sb, sh, bb, hbp), funs(mean, sd, var, median, max)) %>% gather(key = "key", value = "value") %>% separate(key, c("variable", "stat"), sep = "_") %>% spread(stat, value) %>% mutate(variable = recode(variable, 'ab'="At Bats", 'bb' = "Walks", 'h'="Hits", 'r'="Runs", 'sb'="Stolen Bases", 'sh'="Bunts", 'so'="Strike Outs", 'hbp' = "Hit by Pitch"))
+```
+
+*Summary statistics for various batting statistics. Variability is so high for at bats, since most pitchers do not step up to bat anymore.*
+
+
+### 4. (Visualizing)
+
+```{R}
+#Average HRs by League
+shortdat %>% filter(hr > 0) %>% ggplot(aes(yearid, hr)) + geom_bar(stat="summary", fun=mean, fill="Light Blue", color = "black") + scale_x_continuous(name="Year") + scale_y_continuous(name="Average Homeruns", breaks=seq(0, 15, 2.5)) + facet_wrap(~lg) + ggtitle("Average Homeruns Hit by Each League") + theme_minimal()
+
+```
+*In the few years before this data was collected, the average homeruns was increasing. Note: The dip in 1981 was due to the player's strike that led to a cancellation of 713 games.*
+
+```{R}
+
+#correlation heatmap
+shortdat %>% filter(Allstar == TRUE) %>% select_if(is.numeric) %>% select(off600, pitch200, r, h, hr, rbi, so, sh, bb, hbp) %>% cor %>% as.data.frame %>% rownames_to_column  %>% pivot_longer(-1) %>% ggplot(aes(rowname,name,fill=value))+geom_tile() + geom_text(aes(label=round(value,2))) + xlab("")+ylab("")+coord_fixed() + scale_fill_gradient2(low = "pink", mid="white",high="blue") + scale_y_discrete(labels=c("Walks(bb)","Hits (h)","Hit by Pitch (hbp)", "Home Runs (hr)", "Offensive Talent (off600)","Pitching talent (pitch200)","Runs (r)","Runs Batted In (rbi)", "Bunts (sh)", "Strike Outs (so)")) + ggtitle("Correlation Heatmap of Batting Stats for All Stars")
+
+```
+
+*Here you can see just poorly pitching is correlated with batting statistics. The only exception is bunting.*
+
+```{R}
+shortdat %>% ggplot(aes(yearid, h, color = Allstar)) + geom_point(stat='summary', fun=mean) + ggtitle("Baseball") + xlab("year") + ylab("Average hits") + geom_smooth(method='lm',aes(color=Allstar)) + ggtitle("Average Hits of All Stars and non All Stars") + theme_classic()
+
+```
+*This table shows that on average, an all star caliber player hits the ball 3 more times than the rest of the league.*
+
+
+### 5. (Dimensionality Reduction)
+```{R}
+clust_dat <- shortdat  %>% select(g, ab, r, h, X2b, X3b, hr, rbi, sb, cs, hbp, sh, sf, gidp, talent, Allstar) %>% pam(4)
+set.seed(348)
+final <-  shortdat %>% mutate(cluster=clust_dat$clustering) %>% sample_n(500)
+ggplot(final, aes(x=g,y=rbi, color=cluster, shape = Allstar))+geom_point() + xlab("Games") + ylab("Runs Batted In") + theme_light()
+
+```
+*While it would be neat to have all the players clustered by their position, there is simply too much overlap to feasibly do that. The 4 clusters are likely pitchers (many games played with low batting), poor battesr, average batters, and the elite. You can see that most of the all stars have a high amount of runs batted in. If you are not a pitcher, it seems a high amount of RBI's are almost a requirement to become an all star.*
